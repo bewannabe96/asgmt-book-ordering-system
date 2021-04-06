@@ -11,6 +11,9 @@ public class Book {
 
     public static boolean validateIsbn(String isbn) {
         // TODO: validate ISBN
-        return true;
+        if (isbn.length()>13 || isbn.length()<13) 
+            return false;
+        else
+            return true;
     }
 }
