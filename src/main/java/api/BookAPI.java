@@ -17,7 +17,7 @@ public class BookAPI {
         " FROM Book B " +
         " JOIN Author A ON B.isbn = A.isbn " +
         " WHERE B.isbn = ? " +
-        " GROUP BY B.isbn;");    
+        " GROUP BY B.isbn;");
         pstatement.setString(1, isbn);    
         ResultSet rs = null;
         rs = pstatement.executeQuery();
@@ -54,7 +54,8 @@ public class BookAPI {
         " ) AS Temp " + 
         " JOIN Author A ON Temp.isbn = A.isbn " + 
         " WHERE Temp.isbn = A.isbn " + 
-        " GROUP BY Temp.isbn;");    
+        " GROUP BY Temp.isbn " +
+        " ORDER BY Temp.title;");    
         pstatement.setString(1, title);    
         ResultSet rs = null;
         rs = pstatement.executeQuery();
@@ -73,26 +74,78 @@ public class BookAPI {
             }
             books.add(book);
         }
+        db.close();
 
-        return books;
+        return books;        
     }
 
     public static List<Book> selectBooksByAuthor(String author) throws SQLException {
+        // Reference: Documentation 5.2 - 1.c
+
         List<Book> books = new ArrayList<Book>();
 
-        // Reference: Documentation 5.2 - 1.c
-        // TODO
+        Database db = new Database();
+        PreparedStatement pstatement = db.connection().prepareStatement("SELECT Temp.isbn, Temp.title, Temp.unit_price, Temp.no_copies, Temp.name " +
+        " FROM ( " +
+        " SELECT * " +
+        " FROM Book B natural join Author A " +
+        " WHERE B.isbn = A.isbn AND A.name LIKE ?) AS Temp;");    
+        pstatement.setString(1, author);
+        ResultSet rs = null;
+        rs = pstatement.executeQuery();
 
+        while (rs.next()) {
+            Book book = new Book();
+            book.authors = new ArrayList<String>();
+            book.isbn = rs.getString("isbn");
+            book.title = rs.getString("title");
+            book.price = rs.getInt("unit_price");
+            book.availableCopies = rs.getInt("no_copies");
+
+            book.authors.add(rs.getString("name"));
+            books.add(book);
+        }
+
+        db.close();
         return books;
     }
 
     public static List<Book> selectPopularBooks(int limit) throws SQLException {
+        // Reference: Documentation 5.3 - 3
+
         List<Book> books = new ArrayList<Book>();
 
-        // Reference: Documentation 5.3 - 3
-        // TODO: implement according to the reference
-        // TODO: N in the documentation is the `limit`
+        Database db = new Database();
+        PreparedStatement pstatement = db.connection().prepareStatement("SELECT Temp.isbn, Temp.title, Temp.total " +
+        " From ( " +
+        " SELECT *, SUM(O.quantity) as total " +
+        " FROM Ordering O natural join Book " +
+        " GROUP BY O.isbn ) AS Temp " +
+        " ORDER BY Temp.total DESC;");
+        
+        ResultSet rs = null;
+        rs = pstatement.executeQuery();
 
-        return books;
+        while (rs.next()) {
+            Book book = new Book();
+            book.isbn = rs.getString("isbn");
+            book.title = rs.getString("title");
+            //book.availableCopies here refers to the quantity ordered, not the # of available copies
+            book.availableCopies = rs.getInt("total");
+
+            books.add(book);
+        }
+       
+        List<Book> ansbooks = new ArrayList<Book>();
+
+        db.close();
+        if (limit <= books.size()) {
+            Book targetbook = new Book();
+            targetbook = books.get(limit-1);
+            Integer targetQ = targetbook.availableCopies;
+            for (Book b: books) if (b.availableCopies >= targetQ) ansbooks.add(b);
+            return ansbooks;
+        }
+        else return books;
     }
 }
