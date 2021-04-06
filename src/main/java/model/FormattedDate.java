@@ -15,7 +15,7 @@ public class FormattedDate {
 
     public static boolean validateMonth(String month) {
         try {
-            LocalDate.parse(date + "-01");
+            LocalDate.parse(month + "-01");
         } catch (DateTimeParseException e) {
             return false;
         }
