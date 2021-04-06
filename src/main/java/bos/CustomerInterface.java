@@ -87,15 +87,14 @@ public class CustomerInterface {
             }
 
             for(int i = 0; i < books.size(); i++) {
-                System.out.println("Record " + i);
+                System.out.println("Record " + (i+1));
                 System.out.println("ISBN:\t" + books.get(i).isbn);
                 System.out.println("Book Title:\t" + books.get(i).title);
                 System.out.println("Unit Price:\t" + books.get(i).price);
                 System.out.println("No. Available Copies:\t" + books.get(i).availableCopies);
                 System.out.println("Authors:");
                 for(int j = 0; j < books.get(i).authors.size(); j++)
-                    System.out.println("" + j + ". " + books.get(i).authors.get(j));
-                System.out.println("");
+                    System.out.println("" + (j+1) + ". " + books.get(i).authors.get(j));
             }
         } catch(SQLException e) {
             System.out.println("[ERROR]: Failed to search books");

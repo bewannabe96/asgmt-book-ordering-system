@@ -25,7 +25,6 @@ public class BookAPI {
         if (rs.next()) {
             book = new Book();
             book.authors = new ArrayList<String>();
-            System.out.println(rs.getString("title"));
             book.isbn = rs.getString("isbn");
             book.title = rs.getString("title");
             book.price = rs.getInt("unit_price");
@@ -63,7 +62,6 @@ public class BookAPI {
         while (rs.next()) {
             Book book = new Book();
             book.authors = new ArrayList<String>();
-            System.out.println(rs.getString("title"));
             book.isbn = rs.getString("isbn");
             book.title = rs.getString("title");
             book.price = rs.getInt("unit_price");
