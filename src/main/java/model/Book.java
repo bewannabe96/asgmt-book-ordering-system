@@ -1,5 +1,6 @@
 package model;
 
+import java.util.regex.Pattern;
 import java.util.List;
 
 public class Book {
@@ -10,7 +11,6 @@ public class Book {
     public List<String> authors;    // list of authors
 
     public static boolean validateIsbn(String isbn) {
-        // TODO: validate ISBN
-        return true;
+        return Pattern.matches("\\d-\\d\\d\\d\\d-\\d\\d\\d\\d-\\d", isbn);
     }
 }

@@ -1,11 +1,11 @@
 package bos;
 
-import java.sql.*;
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 
-import util.*;
-import api.*;
-import model.*;
+import api.SchemaAPI;
+import model.FormattedDate;
+import util.UserInput;
 
 public class SystemInterface {
     public static void run () {
@@ -85,7 +85,7 @@ public class SystemInterface {
     }
 
     private static void performSetSystemDate() {
-        String date = UserInput.getString("Date(YYYYMMDD): ");
+        String date = UserInput.getString("Date(YYYY-MM-DD): ");
 
         if(!FormattedDate.validateDate(date)) {
             System.out.println("[ERROR]: Date format is invalid");

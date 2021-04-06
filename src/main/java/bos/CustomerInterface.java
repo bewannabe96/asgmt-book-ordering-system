@@ -1,11 +1,16 @@
 package bos;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import util.*;
-import api.*;
-import model.*;
+import api.BookAPI;
+import api.OrderAPI;
+import model.Book;
+import model.Order;
+import util.UserInput;
 
 public class CustomerInterface {
     public static void run () {
@@ -47,7 +52,7 @@ public class CustomerInterface {
     }
 
     private static void performBookSearch() {
-        List<Book> books = new ArrayList<Book>();
+        List<Book> books = null;
 
         System.out.println("\nWhat do you want to search?");
         System.out.println("1. ISBN");
@@ -63,6 +68,7 @@ public class CustomerInterface {
                         System.out.println("[ERROR]: ISBN is not in valid format");
                         return;
                     }
+                    books = new ArrayList<Book>();
                     Book book = BookAPI.selectBookByISBN(isbn);
                     if(book!=null) books.add(book);
                     break;
@@ -226,8 +232,8 @@ public class CustomerInterface {
             for(int i = 0; i < orders.size(); i++) {
                 System.out.println("Record " + i);
                 System.out.println("Order ID:\t" + orders.get(i).oid);
-                System.out.println("Date :\t" + orders.get(i).date);
-                System.out.println("Charge :\t" + orders.get(i).charge);
+                System.out.println("Date:\t" + orders.get(i).date);
+                System.out.println("Charge:\t" + orders.get(i).charge);
                 System.out.println("Shipping Status:\t" + orders.get(i).status);
                 System.out.println("");
             }

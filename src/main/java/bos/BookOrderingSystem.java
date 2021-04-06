@@ -1,6 +1,6 @@
 package bos;
 
-import util.*;
+import util.UserInput;
 
 public class BookOrderingSystem {
     public static void main(String[] args) {
