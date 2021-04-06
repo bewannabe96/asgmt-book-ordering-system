@@ -47,19 +47,20 @@ public class BookstoreInterface {
         oid = UserInput.getString("Order ID: "); 
         try {
             order = OrderAPI.selectOrderById(oid);
+            if (order==null) {
+                System.out.println("[INFO]: Order is not found");
+                return;
+            }
         } catch(SQLException e) {
             System.out.println("[Error]: Failed load order detail");
-            return;
-        } catch(Exception e) {
-            System.out.println("[Error]: " + e.getMessage());
             return;
         }
 
         // TODO: check order condition according to Documentation 5.3 - 1
 
         try {
-            OrderAPI.updateOrder(order);
-            System.out.println("[Error]: Successfully updated the order");
+            OrderAPI.updateOrderStatus(oid, 'Y');
+            System.out.println("[Success]: Successfully updated the order");
         } catch(SQLException e) {
             System.out.println("[Error]: Failed to update the order");
         }
@@ -72,6 +73,8 @@ public class BookstoreInterface {
             System.out.println("[Error]: Month format is invalid");
             return;
         }
+
+        // TODO
     }
 
     private static void performPopularBookQuery() {

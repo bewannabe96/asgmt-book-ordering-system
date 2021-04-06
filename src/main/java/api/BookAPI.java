@@ -8,11 +8,11 @@ import model.*;
 
 public class BookAPI {
     public static Book selectBookByISBN(String isbn) throws SQLException {
+        // Reference: Documentation 5.2 - 1.a
+
         Book b = new Book();
         
         b.authors = new ArrayList<String>();
-        // Reference: Documentation 5.2 - 1.a
-        // TODO
 
         Database db = new Database();
         PreparedStatement pstatement = db.connection().prepareStatement("SELECT * FROM Book WHERE isbn=?");    
@@ -49,27 +49,30 @@ public class BookAPI {
     }
 
     public static List<Book> selectBooksByTitle(String title) throws SQLException {
+        // Reference: Documentation 5.2 - 1.b
+
         List<Book> books = new ArrayList<Book>();
 
-        // Reference: Documentation 5.2 - 1.b
         // TODO
 
         return books;
     }
 
     public static List<Book> selectBooksByAuthor(String author) throws SQLException {
+        // Reference: Documentation 5.2 - 1.c
+
         List<Book> books = new ArrayList<Book>();
 
-        // Reference: Documentation 5.2 - 1.c
         // TODO
 
         return books;
     }
 
     public static List<Book> selectPopularBooks(int limit) throws SQLException {
+        // Reference: Documentation 5.3 - 3
+
         List<Book> books = new ArrayList<Book>();
 
-        // Reference: Documentation 5.3 - 3
         // TODO: implement according to the reference
         // TODO: N in the documentation is the `limit`
 

@@ -1,8 +1,6 @@
 package bos;
 
 import util.*;
-import api.*;
-import model.*;
 
 public class BookOrderingSystem {
     public static void main(String[] args) {

@@ -168,6 +168,7 @@ public class SchemaAPI {
 
     public static String selectSystemTime() throws SQLException {
         // Reference: Documentation 5
+
         // TODO: select DB system time
 
         return "YYYY-MM-DD";
@@ -175,6 +176,7 @@ public class SchemaAPI {
 
     public static void updateSystemTime(String time) throws SQLException {
         // Reference: Documentation 5.1 - 4
+
         // TODO: update DB system time
     }
 }
