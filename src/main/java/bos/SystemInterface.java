@@ -53,18 +53,18 @@ public class SystemInterface {
     private static void performCreateTable() {
         try {
             SchemaAPI.createTables();
-            System.out.println("Successfully created tables");
+            System.out.println("[SUCCESS]: Successfully created tables");
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to create tables");
+            System.out.println("[ERROR]: Failed to create tables");
         }
     }
 
     private static void performDeleteTable() {
         try {
             SchemaAPI.deleteTables();
-            System.out.println("Successfully deleted tables");
+            System.out.println("[SUCCESS]: Successfully deleted tables");
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to delete tables");
+            System.out.println("[ERROR]: Failed to delete tables");
         }
     }
 
@@ -73,13 +73,13 @@ public class SystemInterface {
 
         try {
             SchemaAPI.loadData(path);
-            System.out.println("Successfully loaded data");
+            System.out.println("[SUCCESS]: Successfully loaded data");
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to load data");
+            System.out.println("[ERROR]: Failed to load data");
         } catch(FileNotFoundException e) {
-            System.out.println("[Error]: File not found");
+            System.out.println("[ERROR]: File not found");
         } catch(Exception e) {
-            System.out.println("[Error]: " + e.getMessage());
+            System.out.println("[ERROR]: " + e.getMessage());
         }
 
     }
@@ -88,7 +88,7 @@ public class SystemInterface {
         String date = UserInput.getString("Date(YYYYMMDD): ");
 
         if(!FormattedDate.validateDate(date)) {
-            System.out.println("[Error]: Date format is invalid");
+            System.out.println("[ERROR]: Date format is invalid");
             return;
         }
 
@@ -106,7 +106,7 @@ public class SystemInterface {
             String systemDate = SchemaAPI.selectSystemTime();
             System.out.println("System Date: " + systemDate);
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to retrieve system date");
+            System.out.println("[ERROR]: Failed to retrieve system date");
         }
     }
 }
