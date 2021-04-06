@@ -60,7 +60,7 @@ public class CustomerInterface {
                 case 1:
                     String isbn = UserInput.getString("ISBN: ");
                     if(!Book.validateIsbn(isbn)) {
-                        System.out.println("[Error]: ISBN is not in valid format");
+                        System.out.println("[ERROR]: ISBN is not in valid format");
                         return;
                     }
                     Book book = BookAPI.selectBookByISBN(isbn);
@@ -82,7 +82,7 @@ public class CustomerInterface {
             }
 
             if(books.size() == 0) {
-                System.out.println("No book records found");
+                System.out.println("[INFO]: No book records found");
                 return;
             }
 
@@ -98,7 +98,7 @@ public class CustomerInterface {
                 System.out.println("");
             }
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to search books");
+            System.out.println("[ERROR]: Failed to search books");
         }
     }
 
@@ -126,10 +126,10 @@ public class CustomerInterface {
 
                     Book book = BookAPI.selectBookByISBN(isbn);
                     if (book== null) {
-                        System.out.println("[Error]: Book with the ISBN does not exist");
+                        System.out.println("[INFO]: Book with the ISBN does not exist");
                         continue;
                     } else if (quantity > book.availableCopies) {
-                        System.out.println("[Error]: Not enough book copies available");
+                        System.out.println("[INFO]: Not enough book copies available");
                         continue;
                     }
 
@@ -138,9 +138,9 @@ public class CustomerInterface {
             }
 
             OrderAPI.insertOrder(cid, orders);
-            System.out.println("[Error]: Successfully created order");
+            System.out.println("[SUCCESS]: Successfully created order");
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to create order");
+            System.out.println("[ERROR]: Failed to create order");
         }
     }
 
@@ -160,7 +160,7 @@ public class CustomerInterface {
                 return;
             }
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed load order detail");
+            System.out.println("[ERROR]: Failed load order detail");
             return;
         }
 
@@ -181,10 +181,10 @@ public class CustomerInterface {
 
                 Book book = BookAPI.selectBookByISBN(isbn);
                 if (book == null) {
-                    System.out.println("[WARNING]: Book with the ISBN does not exist");
+                    System.out.println("[INFO]: Book with the ISBN does not exist");
                     continue;
                 } else if (order.orders.get(isbn) == null) {
-                    System.out.println("[WARNING]: Book with the ISBN does not exist in the order");
+                    System.out.println("[ERROR]: Book with the ISBN does not exist in the order");
                     continue;
                 }
 
@@ -196,13 +196,13 @@ public class CustomerInterface {
                     break;
                 } else if(action.equals("remove")) {
                     if (quantity > order.orders.get(isbn)) {
-                        System.out.println("[WARNING]: Quantity should be smaller than the ordered");
+                        System.out.println("[ERROR]: Quantity should be smaller than the ordered");
                         continue;
                     }
                     quantity *= -1;
                     break;
                 } else {
-                    System.out.println("[WARNING]: Invalid action");
+                    System.out.println("[ERROR]: Invalid action");
                     continue;
                 }
             }
@@ -210,7 +210,7 @@ public class CustomerInterface {
             OrderAPI.updateOrderQty(oid, isbn, quantity);
             System.out.println("[INFO]: Successfully updated the order");
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to update the order");
+            System.out.println("[ERROR]: Failed to update the order");
         }
     }
 
@@ -233,7 +233,7 @@ public class CustomerInterface {
                 System.out.println("");
             }
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to query orders");
+            System.out.println("[ERROR]: Failed to query orders");
         }
     }
 }
