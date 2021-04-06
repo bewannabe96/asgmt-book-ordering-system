@@ -1,5 +1,11 @@
 # Book Ordering System
 
+## Group 11
+
+1155077214 CHOI Jang Hyeon  
+1155074814 KWON Sookhyun  
+1155124920 QIN Zihao
+
 ## Build
 
 For building the package, run the following:
