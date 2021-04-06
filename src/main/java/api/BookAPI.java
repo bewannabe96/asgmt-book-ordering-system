@@ -10,42 +10,36 @@ public class BookAPI {
     public static Book selectBookByISBN(String isbn) throws SQLException {
         // Reference: Documentation 5.2 - 1.a
 
-        Book b = new Book();
-        
-        b.authors = new ArrayList<String>();
+        Book book = null;
 
         Database db = new Database();
-        PreparedStatement pstatement = db.connection().prepareStatement("SELECT * FROM Book WHERE isbn=?");    
+        PreparedStatement pstatement = db.connection().prepareStatement("SELECT B.isbn, B.title, B.unit_price, B.no_copies, GROUP_CONCAT(A.name) " + 
+        " FROM Book B " +
+        " JOIN Author A ON B.isbn = A.isbn " +
+        " WHERE B.isbn = ? " +
+        " GROUP BY B.isbn;");    
         pstatement.setString(1, isbn);    
         ResultSet rs = null;
         rs = pstatement.executeQuery();
 
         if (rs.next()) {
+            book = new Book();
+            book.authors = new ArrayList<String>();
             System.out.println(rs.getString("title"));
-            b.isbn = rs.getString("isbn");
-            b.title = rs.getString("title");
-            b.price = rs.getInt("unit_price");
-            b.availableCopies = rs.getInt("no_copies");
-            System.out.println(b.isbn);
-            System.out.println(b.title);
-            System.out.println(b.price);
-            System.out.println(b.availableCopies);
-        } 
-        
-        PreparedStatement pstatement2 = db.connection().prepareStatement("SELECT name FROM Author Where isbn = ?");    
-        pstatement2.setString(1, isbn);    
-        ResultSet rs2 = null;
-        rs2 = pstatement2.executeQuery();
-
-        while (rs2.next()){
-            String authorsstring = rs2.getString("name");
-            b.authors.add(authorsstring);
-            System.out.println(authorsstring);
+            book.isbn = rs.getString("isbn");
+            book.title = rs.getString("title");
+            book.price = rs.getInt("unit_price");
+            book.availableCopies = rs.getInt("no_copies");
+            String authorsstring = rs.getString("GROUP_CONCAT(A.name)");
+            String[] authors = authorsstring.split(",");
+            for (String a: authors) {
+                book.authors.add(a);
+            }
         }
-                
+                        
         db.close();
 
-        return b;
+        return book;
     }
 
     public static List<Book> selectBooksByTitle(String title) throws SQLException {
@@ -53,26 +47,51 @@ public class BookAPI {
 
         List<Book> books = new ArrayList<Book>();
 
-        // TODO
+        Database db = new Database();
+        PreparedStatement pstatement = db.connection().prepareStatement("SELECT Temp.isbn, Temp.title, Temp.unit_price, Temp.no_copies, GROUP_CONCAT(A.name) " + 
+        " FROM (SELECT B.isbn, B.title, B.unit_price, B.no_copies " + 
+        " FROM Book B " + 
+        " WHERE B.title LIKE ? " + 
+        " ) AS Temp " + 
+        " JOIN Author A ON Temp.isbn = A.isbn " + 
+        " WHERE Temp.isbn = A.isbn " + 
+        " GROUP BY Temp.isbn;");    
+        pstatement.setString(1, title);    
+        ResultSet rs = null;
+        rs = pstatement.executeQuery();
+
+        while (rs.next()) {
+            Book book = new Book();
+            book.authors = new ArrayList<String>();
+            System.out.println(rs.getString("title"));
+            book.isbn = rs.getString("isbn");
+            book.title = rs.getString("title");
+            book.price = rs.getInt("unit_price");
+            book.availableCopies = rs.getInt("no_copies");
+            String authorsstring = rs.getString("GROUP_CONCAT(A.name)");
+            String[] authors = authorsstring.split(",");
+            for (String a: authors) {
+                book.authors.add(a);
+            }
+            books.add(book);
+        }
 
         return books;
     }
 
     public static List<Book> selectBooksByAuthor(String author) throws SQLException {
-        // Reference: Documentation 5.2 - 1.c
-
         List<Book> books = new ArrayList<Book>();
 
+        // Reference: Documentation 5.2 - 1.c
         // TODO
 
         return books;
     }
 
     public static List<Book> selectPopularBooks(int limit) throws SQLException {
-        // Reference: Documentation 5.3 - 3
-
         List<Book> books = new ArrayList<Book>();
 
+        // Reference: Documentation 5.3 - 3
         // TODO: implement according to the reference
         // TODO: N in the documentation is the `limit`
 
