@@ -58,7 +58,7 @@ public class BookstoreInterface {
         // TODO: check order condition according to Documentation 5.3 - 1
 
         try {
-            OrderAPI.updateOrder(order);
+            OrderAPI.updateOrderStatus(oid, 'Y');
             System.out.println("[Error]: Successfully updated the order");
         } catch(SQLException e) {
             System.out.println("[Error]: Failed to update the order");

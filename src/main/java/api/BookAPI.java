@@ -8,7 +8,7 @@ import model.*;
 
 public class BookAPI {
     public static Book selectBookByISBN(String isbn) throws SQLException {
-        Book book = new Book();
+        Book book = null;
 
         // Reference: Documentation 5.2 - 1.a
         // TODO

@@ -7,10 +7,12 @@ import util.*;
 import model.*;
 
 public class OrderAPI {
-    public static Order selectOrderById(String oid) throws Exception, SQLException {
+    public static Order selectOrderById(String oid) throws SQLException {
+        Order order = null;
+        
         // TODO
-        // throw Exception('Order is not found') when no result
-        return new Order();
+
+        return order;
     }
 
     public static List<Order> selectOrdersByMonth(String month) throws SQLException {
@@ -23,7 +25,6 @@ public class OrderAPI {
 
         return orders;
     }
-
 
     public static List<Order> selectOrdersByCidAndYear(String cid, int year) throws SQLException {
         List<Order> orders = new ArrayList<Order>();
@@ -39,9 +40,13 @@ public class OrderAPI {
         // TODO
     }
 
-    public static void updateOrder(Order order) throws SQLException {
-        // Reference: Documentation 5.2 - 3
+    public static void updateOrderStatus(String oid, char status) throws SQLException {
         // Reference: Documentation 5.3 - 1
+        // TODO
+    }
+
+    public static void updateOrderQty(String oid, String isbn, int qty) throws SQLException {
+        // Reference: Documentation 5.2 - 3
         // TODO
     }
 }
