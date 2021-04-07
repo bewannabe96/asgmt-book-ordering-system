@@ -46,8 +46,8 @@ public class OrderAPI {
     public static List<Order> selectOrdersByMonth(String month) throws SQLException {
         // Reference: Documentation 5.3 - 2
 
-        Order order;
-        Map<String, Order> orders = new HashMap<String, Order>();
+        Order order = null;
+        List<Order> orders = new ArrayList<Order>();
 
         Database db = new Database();
         PreparedStatement stmt = db.connection().prepareStatement(
@@ -59,14 +59,17 @@ public class OrderAPI {
             + "     GROUP BY O.oid"
             + " ) C ON C.oid=O.oid"
             + " JOIN ordering OI ON OI.oid=O.oid"
-            + " WHERE DATE_FORMAT(O.order_date,'%Y-%m\") = ?"
+            + " WHERE DATE_FORMAT(O.order_date,'%Y-%m') = ?"
+            + " ORDER BY O.oid ASC"
         );
         stmt.setString(1, month);
 
         ResultSet rs = stmt.executeQuery();
         while (rs.next()) {
             String oid = rs.getString("oid");
-            if (orders.get(oid) == null) {
+            if (order == null || !order.oid.equals(oid))  {
+                if(order != null) orders.add(order);
+
                 order = new Order();
                 order.oid = oid;
                 order.cid = rs.getString("cid");
@@ -75,20 +78,20 @@ public class OrderAPI {
                 order.charge = rs.getInt("charge");
                 order.status = rs.getString("ship_status").charAt(0);
                 order.orders = new HashMap<String, Integer>();
-                orders.put(oid, order);
             }
-            orders.get(oid).orders.put(rs.getString("isbn"), rs.getInt("quantity"));
+            order.orders.put(rs.getString("isbn"), rs.getInt("quantity"));
         }
+        orders.add(order);
         db.close();
 
-        return new ArrayList<Order>(orders.values());
+        return orders;
     }
 
     public static List<Order> selectOrdersByCidAndYear(String cid, int year) throws SQLException {
         // Reference: Documentation 5.2 - 4
 
-        Order order;
-        Map<String, Order> orders = new HashMap<String, Order>();
+        Order order = null;
+        List<Order> orders = new ArrayList<Order>();
 
         Database db = new Database();
         PreparedStatement stmt = db.connection().prepareStatement(
@@ -101,6 +104,7 @@ public class OrderAPI {
             + " ) C ON C.oid=O.oid"
             + " JOIN ordering OI ON OI.oid=O.oid"
             + " WHERE cid = ? AND YEAR(O.order_date) = ?"
+            + " ORDER BY O.oid ASC"
         );
         stmt.setString(1, cid);
         stmt.setInt(2, year);
@@ -108,7 +112,9 @@ public class OrderAPI {
         ResultSet rs = stmt.executeQuery();
         while (rs.next()) {
             String oid = rs.getString("oid");
-            if (orders.get(oid) == null) {
+            if (order == null || !order.oid.equals(oid))  {
+                if(order != null) orders.add(order);
+
                 order = new Order();
                 order.oid = oid;
                 order.cid = rs.getString("cid");
@@ -117,24 +123,23 @@ public class OrderAPI {
                 order.charge = rs.getInt("charge");
                 order.status = rs.getString("ship_status").charAt(0);
                 order.orders = new HashMap<String, Integer>();
-                orders.put(oid, order);
             }
-            orders.get(oid).orders.put(rs.getString("isbn"), rs.getInt("quantity"));
+            order.orders.put(rs.getString("isbn"), rs.getInt("quantity"));
         }
+        orders.add(order);
         db.close();
 
-        return new ArrayList<Order>(orders.values());
+        return orders;
     }
 
-    public static void insertOrder(String cid, Map<String, Integer> orders) throws SQLException {
+    public static void insertOrder(String cid, Map<String, Integer> orders) throws Exception, SQLException {
         // Reference: Documentation 5.2 - 2
 
         int total_qty = 0;
         for (Map.Entry<String,Integer> entry : orders.entrySet())
             total_qty += entry.getValue();
         if (total_qty == 0) {
-            System.out.println("[ERROR]: Order must include at least one book order");
-            return;
+            throw new Exception("Order must include at least one book order");
         }
 
         Database db = new Database();
@@ -185,7 +190,7 @@ public class OrderAPI {
 
         Database db = new Database();
         PreparedStatement stmt = db.connection().prepareStatement(
-            "UPDATE order SET status = ? WHERE oid = ?"
+            "UPDATE orders SET ship_status = ? WHERE oid = ?"
         );
         stmt.setString(1, ""+status);
         stmt.setString(2, oid);

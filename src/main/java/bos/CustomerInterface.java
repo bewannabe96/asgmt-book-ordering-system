@@ -92,15 +92,9 @@ public class CustomerInterface {
                 return;
             }
 
+            Book.printHeader();
             for(int i = 0; i < books.size(); i++) {
-                System.out.println("Record " + (i+1));
-                System.out.println("ISBN:\t" + books.get(i).isbn);
-                System.out.println("Book Title:\t" + books.get(i).title);
-                System.out.println("Unit Price:\t" + books.get(i).price);
-                System.out.println("No. Available Copies:\t" + books.get(i).availableCopies);
-                System.out.println("Authors:");
-                for(int j = 0; j < books.get(i).authors.size(); j++)
-                    System.out.println("" + (j+1) + ". " + books.get(i).authors.get(j));
+                books.get(i).printRow();
             }
         } catch(SQLException e) {
             System.out.println("[ERROR]: Failed to search books");
@@ -144,8 +138,10 @@ public class CustomerInterface {
 
             OrderAPI.insertOrder(cid, orders);
             System.out.println("[SUCCESS]: Successfully created order");
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             System.out.println("[ERROR]: Failed to create order");
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
         }
     }
 
@@ -230,11 +226,9 @@ public class CustomerInterface {
         try {
             orders = OrderAPI.selectOrdersByCidAndYear(cid, year);
 
-            System.out.println("==========================");
+            Order.printHeader();
             for(int i = 0; i < orders.size(); i++) {
-                System.out.println("Record " + i);
-                orders.get(i).printDetail();
-                System.out.println("==========================");
+                orders.get(i).printRow();
             }
         } catch(SQLException e) {
             System.out.println("[ERROR]: Failed to query orders");

@@ -108,11 +108,10 @@ public class BookstoreInterface {
             for (Order order : orders)
                 totalSales += order.charge;
 
+            Order.printHeader();
             for(int i = 0; i < orders.size(); i++) {
-                System.out.println("Record " + (i+1));
-                orders.get(i).printDetail();
+                orders.get(i).printRow();
             }
-
             System.out.println("Total Sales: " + totalSales);
         } catch(SQLException e) {
             System.out.println("[ERROR]: Failed to load orders");
@@ -123,12 +122,21 @@ public class BookstoreInterface {
         List<Book> books;
         int limit = UserInput.getInt("Limit: ");
 
+        if(limit <= 0) {
+            System.out.println("[ERROR]: Limit must be greater than 0");
+            return;
+        }
+
         try {
             books = BookAPI.selectPopularBooks(limit);
 
-            System.out.println("ISBN\t\t\t\tTitle\t\t\t\tNo.Copies");
-            for(int i = 0; i < books.size(); i++)
-                System.out.println(books.get(i).isbn + books.get(i).title + books.get(i).availableCopies);
+            System.out.println(
+                String.format("%-15s%-30s%-10s", "ISBN", "Title", "No.Cp Sold")
+            );
+            for (Book book : books)
+                System.out.println(
+                    String.format("%-15s%-30s%10d", book.isbn, book.title, book.availableCopies)
+                );
         } catch (SQLException e) {
             System.out.println("[ERROR]: Failed to load books");
         }

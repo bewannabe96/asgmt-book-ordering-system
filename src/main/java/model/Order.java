@@ -11,6 +11,28 @@ public class Order {
     public char status;                     // one of <"Y", "N">
     public Map<String, Integer> orders;     // key in format of "X-XXXX-XXXX-X" and value the quantity
 
+    public static void printHeader() {
+        System.out.println(
+            String.format(
+                "%-10s%-11s%-10s%-8s%-9s%-12s%-15s%-4s",
+                "ID", "Customer", "Shipped", "Books", "Charge", "Date", "ISBN", "Qty."
+            )
+        );
+    }
+
+    public void printRow() {
+        System.out.println(
+            String.format(
+                "%-10s%-11s%-10s%-8s%-9s%-10s",
+                this.oid, this.cid, this.status, this.quantity, this.charge, this.date
+            )
+        );
+        for (Map.Entry<String,Integer> entry : this.orders.entrySet())
+            System.out.println(
+                String.format("%60s%-15s%4d", "", entry.getKey(), entry.getValue())
+            );
+    }
+
     public void printDetail() {
         System.out.println("Order ID:\t" + this.oid);
         System.out.println("Customer ID:\t" + this.cid);
