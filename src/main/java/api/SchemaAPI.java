@@ -15,9 +15,9 @@ public class SchemaAPI {
         Statement stmt = db.connection().createStatement();
         stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Book(isbn VARCHAR(13),title varchar(100),unit_price int,no_copies int,primary key(isbn));");
         stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Customer(cid VARCHAR(10),name varchar(50),ship_addr varchar(200),card_no varchar(19),primary key(cid));");
-        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Orders(oid VARCHAR(8),cid varchar(10),date datetime,charge int,status varchar(1), primary key(oid), foreign key(cid) references Customer (cid) on delete cascade);");
-        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Ordering(oid VARCHAR(8),isbn varchar(13),quantity int,primary key(oid,isbn), foreign key(oid) references Orders (oid) on delete cascade,foreign key(isbn) references Book (isbn) on delete cascade);");
-        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Author(isbn VARCHAR(13),name varchar(50),primary key(isbn,name),foreign key(isbn) references Book (isbn) on delete cascade);");
+        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Orders(oid VARCHAR(8),cid varchar(10),date datetime,status varchar(1), primary key(oid), foreign key(cid) references Customer (cid));");
+        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Ordering(oid VARCHAR(8),isbn varchar(13),quantity int, primary key(oid,isbn), foreign key(oid) references Orders (oid), foreign key(isbn) references Book (isbn));");
+        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS Author(isbn VARCHAR(13),name varchar(50),primary key(isbn,name),foreign key(isbn) references Book (isbn));");
         db.close();
     }
 
