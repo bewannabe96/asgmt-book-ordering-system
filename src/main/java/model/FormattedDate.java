@@ -1,13 +1,28 @@
 package model;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 public class FormattedDate {
     public static boolean validateDate(String date) {
-        // TODO: validate date in format of YYYYMMDD
+        try {
+            LocalDate.parse(date);
+        } catch (DateTimeParseException e) {
+            return false;
+        }
         return true;
     }
 
     public static boolean validateMonth(String month) {
-        // TODO: validate date in format of YYYY-MM
+        try {
+            LocalDate.parse(month + "-01");
+        } catch (DateTimeParseException e) {
+            return false;
+        }
         return true;
+    }
+
+    public static boolean isBefore(String date1, String date2) {
+        return LocalDate.parse(date1).isBefore(LocalDate.parse(date2));
     }
 }

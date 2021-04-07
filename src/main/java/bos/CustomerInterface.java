@@ -1,11 +1,16 @@
 package bos;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import util.*;
-import api.*;
-import model.*;
+import api.BookAPI;
+import api.OrderAPI;
+import model.Book;
+import model.Order;
+import util.UserInput;
 
 public class CustomerInterface {
     public static void run () {
@@ -47,7 +52,7 @@ public class CustomerInterface {
     }
 
     private static void performBookSearch() {
-        List<Book> books = new ArrayList<Book>();
+        List<Book> books = null;
 
         System.out.println("\nWhat do you want to search?");
         System.out.println("1. ISBN");
@@ -60,10 +65,12 @@ public class CustomerInterface {
                 case 1:
                     String isbn = UserInput.getString("ISBN: ");
                     if(!Book.validateIsbn(isbn)) {
-                        System.out.println("[Error]: ISBN is not in valid format");
+                        System.out.println("[ERROR]: ISBN is not in valid format");
                         return;
                     }
-                    books.add(BookAPI.selectBookByISBN(isbn));
+                    books = new ArrayList<Book>();
+                    Book book = BookAPI.selectBookByISBN(isbn);
+                    if(book!=null) books.add(book);
                     break;
 
                 case 2:
@@ -81,28 +88,22 @@ public class CustomerInterface {
             }
 
             if(books.size() == 0) {
-                System.out.println("No book records found");
+                System.out.println("[INFO]: No book records found");
                 return;
             }
 
+            Book.printHeader();
             for(int i = 0; i < books.size(); i++) {
-                System.out.println("Record " + i);
-                System.out.println("ISBN:\t" + books.get(i).isbn);
-                System.out.println("Book Title:\t" + books.get(i).title);
-                System.out.println("Unit Price:\t" + books.get(i).price);
-                System.out.println("No. Available Copies:\t" + books.get(i).availableCopies);
-                System.out.println("Authors:");
-                for(int j = 0; j < books.get(i).authors.size(); j++)
-                    System.out.println("" + j + ". " + books.get(i).authors.get(j));
+                books.get(i).printRow();
             }
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to search books");
+            System.out.println("[ERROR]: Failed to search books");
         }
     }
 
     private static void performOrderCreation() {
-        String cid, orderInput;
-        int orderQty;
+        String cid, isbn;
+        int quantity;
         Map<String, Integer> orders = new HashMap<String, Integer>();
 
         cid = UserInput.getString("Customer ID: "); 
@@ -110,25 +111,37 @@ public class CustomerInterface {
         System.out.println("Orders: ");
         System.out.println("* Press 'L' to see list of orders");
         System.out.println("* Press 'F' to finish ordering");
-        while(true) {
-            orderInput = UserInput.getString("Book ISBN / 'L' / 'F': ");
-            if(orderInput.equals("L")) {
-                // TODO: list orders
-            } else if(orderInput.equals("F")) {
-                break;
-            } else {
-                orderQty = UserInput.getInt("[" + orderInput + "] Quantity: ");
-                // TODO: lookup if order request is valid
-                // TODO: if valid push it into `orders`
-                // TODO: print error message otherwise
-            }
-        }
-
         try {
+            while (true) {
+                isbn = UserInput.getString("Book ISBN / 'L' / 'F': ");
+                if (isbn.equals("L")) {
+                    System.out.println("ISBN\t\tQuantity");
+                    for (Map.Entry<String,Integer> entry : orders.entrySet())
+                        System.out.println(entry.getKey()+"\t"+entry.getValue());
+                } else if (isbn.equals("F")) {
+                    break;
+                } else {
+                    quantity = UserInput.getInt("[" + isbn + "] Quantity: ");
+
+                    Book book = BookAPI.selectBookByISBN(isbn);
+                    if (book== null) {
+                        System.out.println("[INFO]: Book with the ISBN does not exist");
+                        continue;
+                    } else if (quantity > book.availableCopies) {
+                        System.out.println("[INFO]: Not enough book copies available");
+                        continue;
+                    }
+
+                    orders.put(isbn, quantity);
+                }
+            }
+
             OrderAPI.insertOrder(cid, orders);
-            System.out.println("[Error]: Successfully created order");
-        } catch(SQLException e) {
-            System.out.println("[Error]: Failed to create order");
+            System.out.println("[SUCCESS]: Successfully created order");
+        } catch (SQLException e) {
+            System.out.println("[ERROR]: Failed to create order");
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
         }
     }
 
@@ -140,36 +153,65 @@ public class CustomerInterface {
         oid = UserInput.getString("Order ID: "); 
         try {
             order = OrderAPI.selectOrderById(oid);
+            if (order==null) {
+                System.out.println("[INFO]: Order is not found");
+                return;
+            } else if (order.status == 'Y') {
+                System.out.println("[INFO]: The order is already shipped");
+                return;
+            }
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed load order detail");
-            return;
-        } catch(Exception e) {
-            System.out.println("[Error]: " + e.getMessage());
+            System.out.println("[ERROR]: Failed load order detail");
             return;
         }
 
-        // TODO: print order detail
+        // print order summary
+        System.out.println("==========================");
+        System.out.println("Order Summary");
+        System.out.println("==========================");
+        order.printDetail();
+        System.out.println("==========================");
 
-        isbn = UserInput.getString("Book ISBN: ");
-        action = UserInput.getString("Action [add, remove]: ");
-        quantity = UserInput.getInt("Quantity: ");
-
-        if(action.equals("add")) {
-            // TODO: validate input
-            // TODO: update order
-        } else if(action.equals("remove")) {
-            // TODO: validate input
-            // TODO: update order
-        } else {
-            System.out.println("[Error]: Invalid action");
-            return;
-        }
 
         try {
-            OrderAPI.updateOrder(order);
-            System.out.println("[Error]: Successfully updated the order");
+            while (true) {
+                isbn = UserInput.getString("Book ISBN: ");
+                action = UserInput.getString("Action [add, remove]: ");
+                quantity = UserInput.getInt("Quantity: ");
+
+                if (order.orders.get(isbn) == null) {
+                    System.out.println("[ERROR]: Book with the ISBN does not exist in the order");
+                    continue;
+                }
+
+                Book book = BookAPI.selectBookByISBN(isbn);
+                if (book == null) {
+                    System.out.println("[INFO]: Book with the ISBN does not exist");
+                    continue;
+                }
+
+                if(action.equals("add")) {
+                    if (quantity > book.availableCopies) {
+                        System.out.println("[INFO]: Not enough book copies available");
+                        continue;
+                    }
+                    break;
+                } else if(action.equals("remove")) {
+                    if (quantity > order.orders.get(isbn)) {
+                        System.out.println("[ERROR]: Quantity should be smaller than the ordered");
+                        continue;
+                    }
+                    break;
+                } else {
+                    System.out.println("[ERROR]: Invalid action");
+                    continue;
+                }
+            }
+
+            OrderAPI.updateOrderQty(oid, isbn, action, quantity);
+            System.out.println("[INFO]: Successfully updated the order");
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to update the order");
+            System.out.println("[ERROR]: Failed to update the order");
         }
     }
 
@@ -183,10 +225,13 @@ public class CustomerInterface {
 
         try {
             orders = OrderAPI.selectOrdersByCidAndYear(cid, year);
-            
-            // TODO: print orders
+
+            Order.printHeader();
+            for(int i = 0; i < orders.size(); i++) {
+                orders.get(i).printRow();
+            }
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to query orders");
+            System.out.println("[ERROR]: Failed to query orders");
         }
     }
 }

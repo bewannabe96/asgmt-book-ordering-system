@@ -1,11 +1,16 @@
 package bos;
 
-import util.*;
-import api.*;
-import model.*;
+import util.UserInput;
+import api.SystemTimeAPI;
 
 public class BookOrderingSystem {
     public static void main(String[] args) {
+        try {
+            SystemTimeAPI.initialize();
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
+        }
+
         boolean running = true;
         while(running) {
             switch(printMenu()) {

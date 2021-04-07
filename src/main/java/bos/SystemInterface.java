@@ -1,11 +1,12 @@
 package bos;
 
-import java.sql.*;
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 
-import util.*;
-import api.*;
-import model.*;
+import api.SchemaAPI;
+import api.SystemTimeAPI;
+import model.FormattedDate;
+import util.UserInput;
 
 public class SystemInterface {
     public static void run () {
@@ -53,18 +54,18 @@ public class SystemInterface {
     private static void performCreateTable() {
         try {
             SchemaAPI.createTables();
-            System.out.println("Successfully created tables");
+            System.out.println("[SUCCESS]: Successfully created tables");
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to create tables");
+            System.out.println("[ERROR]: Failed to create tables");
         }
     }
 
     private static void performDeleteTable() {
         try {
             SchemaAPI.deleteTables();
-            System.out.println("Successfully deleted tables");
+            System.out.println("[SUCCESS]: Successfully deleted tables");
         } catch(SQLException e) {
-            System.out.println("[Error]: Failed to delete tables");
+            System.out.println("[ERROR]: Failed to delete tables");
         }
     }
 
@@ -73,40 +74,35 @@ public class SystemInterface {
 
         try {
             SchemaAPI.loadData(path);
-            System.out.println("Successfully loaded data");
-        } catch(SQLException e) {
-            System.out.println("[Error]: Failed to load data");
-        } catch(FileNotFoundException e) {
-            System.out.println("[Error]: File not found");
+            System.out.println("[SUCCESS]: Successfully loaded data");
         } catch(Exception e) {
-            System.out.println("[Error]: " + e.getMessage());
+            System.out.println("[ERROR]: " + e.getMessage());
         }
 
     }
 
     private static void performSetSystemDate() {
-        String date = UserInput.getString("Date(YYYYMMDD): ");
+        String latestDate = "";
+        String newDate = UserInput.getString("Date(YYYY-MM-DD): ");
 
-        if(!FormattedDate.validateDate(date)) {
-            System.out.println("[Error]: Date format is invalid");
+        if(!FormattedDate.validateDate(newDate)) {
+            System.out.println("[ERROR]: Date format is invalid");
             return;
         }
 
-        String latestDate = "";
-        String today = "";
-
-        // TODO: get latestdate and today's date
-
-        System.out.println("Latest date in orders: " + latestDate);
-        System.out.println("Today is " + today);
+        try {
+            SystemTimeAPI.set(newDate);
+            System.out.println("[SUCCESS]: Sucessfully set system time: " + newDate);
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
+        }
     }
 
     private static void performShowSystemDate() {
         try {
-            String systemDate = SchemaAPI.selectSystemTime();
-            System.out.println("System Date: " + systemDate);
-        } catch(SQLException e) {
-            System.out.println("[Error]: Failed to retrieve system date");
+            System.out.println("System Date: " + SystemTimeAPI.get());
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
         }
     }
 }
