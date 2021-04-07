@@ -130,7 +130,9 @@ public class OrderAPI {
 
         Database db = new Database();
         Statement stmt = db.connection().createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT DATE(date) AS latest FROM Orders ORDER BY date DESC LIMIT 1");
+        ResultSet rs = stmt.executeQuery(
+            "SELECT DATE(order_date) AS latest FROM orders ORDER BY order_date DESC LIMIT 1"
+        );
 
         if (rs.next()) {
             date = rs.getString("latest");

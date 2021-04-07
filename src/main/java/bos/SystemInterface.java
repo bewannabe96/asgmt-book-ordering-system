@@ -75,10 +75,6 @@ public class SystemInterface {
         try {
             SchemaAPI.loadData(path);
             System.out.println("[SUCCESS]: Successfully loaded data");
-        } catch(SQLException e) {
-            System.out.println("[ERROR]: Failed to load data");
-        } catch(FileNotFoundException e) {
-            System.out.println("[ERROR]: File not found");
         } catch(Exception e) {
             System.out.println("[ERROR]: " + e.getMessage());
         }
