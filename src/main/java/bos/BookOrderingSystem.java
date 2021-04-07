@@ -4,6 +4,13 @@ import util.UserInput;
 
 public class BookOrderingSystem {
     public static void main(String[] args) {
+        try {
+            SystemTimeAPI.initialize();
+        } catch (Exception e) {
+            System.out.println("[SYSTEM ERROR]: " + e.getMessage());
+            return;
+        }
+
         boolean running = true;
         while(running) {
             switch(printMenu()) {

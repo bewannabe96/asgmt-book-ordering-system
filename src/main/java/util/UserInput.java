@@ -11,9 +11,9 @@ public class UserInput {
                 System.out.print("Choice: ");
                 int choice = Integer.parseInt(scanner.nextLine());
                 if(choice >= 1 && choice <= choices) return choice;
-                System.out.println("[Error]: Invalid choice\n");
+                System.out.println("[ERROR]: Invalid choice\n");
             } catch(NumberFormatException e) {
-                System.out.println("[Error]: Input must be a number\n");
+                System.out.println("[ERROR]: Input must be a number\n");
             }
         }
     }
@@ -29,7 +29,7 @@ public class UserInput {
                 System.out.print(prompt);
                 return Integer.parseInt(scanner.nextLine());
             } catch(NumberFormatException e) {
-                System.out.println("[Error]: Input must be a number\n");
+                System.out.println("[ERROR]: Input must be a number\n");
             }
         }
     }

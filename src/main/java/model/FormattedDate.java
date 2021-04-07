@@ -21,4 +21,8 @@ public class FormattedDate {
         }
         return true;
     }
+
+    public static boolean isBefore(String date1, String date2) {
+        return LocalDate.parse(date1).isBefore(LocalDate.parse(date2));
+    }
 }

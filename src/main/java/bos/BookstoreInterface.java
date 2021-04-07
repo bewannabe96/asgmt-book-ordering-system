@@ -137,7 +137,7 @@ public class BookstoreInterface {
         try {
             books = BookAPI.selectPopularBooks(limit);
 
-            System.out.println("ISBN\t\t\t\tTitle\n\n\n\nNo.Copies");
+            System.out.println("ISBN\t\t\t\tTitle\t\t\t\tNo.Copies");
             for(int i = 0; i < books.size(); i++)
                 System.out.println(books.get(i).isbn + books.get(i).title + books.get(i).availableCopies);
         } catch (SQLException e) {

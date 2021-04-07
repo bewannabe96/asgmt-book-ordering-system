@@ -85,28 +85,23 @@ public class SystemInterface {
     }
 
     private static void performSetSystemDate() {
-        String date = UserInput.getString("Date(YYYY-MM-DD): ");
+        String latestDate = "";
+        String newDate = UserInput.getString("Date(YYYY-MM-DD): ");
 
-        if(!FormattedDate.validateDate(date)) {
+        if(!FormattedDate.validateDate(newDate)) {
             System.out.println("[ERROR]: Date format is invalid");
             return;
         }
 
-        String latestDate = "";
-        String today = "";
-
-        // TODO: get latestdate and today's date
-
-        System.out.println("Latest date in orders: " + latestDate);
-        System.out.println("Today is " + today);
+        try {
+            SystemTimeAPI.set(newDate);
+            System.out.println("[SUCCESS]: Sucessfully set system time: " + newDate);
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
+        }
     }
 
     private static void performShowSystemDate() {
-        try {
-            String systemDate = SchemaAPI.selectSystemTime();
-            System.out.println("System Date: " + systemDate);
-        } catch(SQLException e) {
-            System.out.println("[ERROR]: Failed to retrieve system date");
-        }
+        System.out.println("System Date: " + SystemTimeAPI.get());
     }
 }
