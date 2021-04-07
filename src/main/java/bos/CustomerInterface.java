@@ -226,6 +226,11 @@ public class CustomerInterface {
         try {
             orders = OrderAPI.selectOrdersByCidAndYear(cid, year);
 
+            if(orders.size() == 0) {
+                System.out.println("[INFO]: No order records found");
+                return;
+            }
+
             Order.printHeader();
             for(int i = 0; i < orders.size(); i++) {
                 orders.get(i).printRow();

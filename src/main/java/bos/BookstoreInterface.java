@@ -103,6 +103,11 @@ public class BookstoreInterface {
                 return;
             }
 
+            if(orders.size() == 0) {
+                System.out.println("[INFO]: No order records found");
+                return;
+            }
+
             // count total sales of orders
             int totalSales = 0;
             for (Order order : orders)

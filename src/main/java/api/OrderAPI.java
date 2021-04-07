@@ -83,7 +83,7 @@ public class OrderAPI {
             }
             order.orders.put(rs.getString("isbn"), rs.getInt("quantity"));
         }
-        orders.add(order);
+        if (order!=null) orders.add(order);
         db.close();
 
         return orders;
@@ -130,7 +130,7 @@ public class OrderAPI {
             }
             order.orders.put(rs.getString("isbn"), rs.getInt("quantity"));
         }
-        orders.add(order);
+        if (order!=null) orders.add(order);
         db.close();
 
         return orders;
