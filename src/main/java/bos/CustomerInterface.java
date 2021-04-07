@@ -121,9 +121,9 @@ public class CustomerInterface {
             while (true) {
                 isbn = UserInput.getString("Book ISBN / 'L' / 'F': ");
                 if (isbn.equals("L")) {
-                    System.out.println("ISBN\t\t\tQuantity");
+                    System.out.println("ISBN\t\tQuantity");
                     for (Map.Entry<String,Integer> entry : orders.entrySet())
-                        System.out.println(entry.getKey()+"\t\t\t"+entry.getValue());
+                        System.out.println(entry.getKey()+"\t"+entry.getValue());
                 } else if (isbn.equals("F")) {
                     break;
                 } else {
@@ -169,13 +169,12 @@ public class CustomerInterface {
             return;
         }
 
-        System.out.println("Order " + order.oid);
-        System.out.println("Customer ID: " + order.cid);
-        System.out.println("Shipping: " + order.status + ", Charge: " + order.charge);
-        System.out.println("Books:");
-        System.out.println("ISBN\t\t\tQuantity");
-            for (Map.Entry<String,Integer> entry : order.orders.entrySet())
-                System.out.println(entry.getKey()+"\t\t\t"+entry.getValue());
+        // print order summary
+        System.out.println("==========================");
+        System.out.println("Order Summary");
+        System.out.println("==========================");
+        order.printDetail();
+        System.out.println("==========================");
 
 
         try {
@@ -184,12 +183,14 @@ public class CustomerInterface {
                 action = UserInput.getString("Action [add, remove]: ");
                 quantity = UserInput.getInt("Quantity: ");
 
+                if (order.orders.get(isbn) == null) {
+                    System.out.println("[ERROR]: Book with the ISBN does not exist in the order");
+                    continue;
+                }
+
                 Book book = BookAPI.selectBookByISBN(isbn);
                 if (book == null) {
                     System.out.println("[INFO]: Book with the ISBN does not exist");
-                    continue;
-                } else if (order.orders.get(isbn) == null) {
-                    System.out.println("[ERROR]: Book with the ISBN does not exist in the order");
                     continue;
                 }
 
@@ -204,7 +205,6 @@ public class CustomerInterface {
                         System.out.println("[ERROR]: Quantity should be smaller than the ordered");
                         continue;
                     }
-                    quantity *= -1;
                     break;
                 } else {
                     System.out.println("[ERROR]: Invalid action");
@@ -212,7 +212,7 @@ public class CustomerInterface {
                 }
             }
 
-            OrderAPI.updateOrderQty(oid, isbn, quantity);
+            OrderAPI.updateOrderQty(oid, isbn, action, quantity);
             System.out.println("[INFO]: Successfully updated the order");
         } catch(SQLException e) {
             System.out.println("[ERROR]: Failed to update the order");
@@ -229,13 +229,12 @@ public class CustomerInterface {
 
         try {
             orders = OrderAPI.selectOrdersByCidAndYear(cid, year);
+
+            System.out.println("==========================");
             for(int i = 0; i < orders.size(); i++) {
                 System.out.println("Record " + i);
-                System.out.println("Order ID:\t" + orders.get(i).oid);
-                System.out.println("Date:\t" + orders.get(i).date);
-                System.out.println("Charge:\t" + orders.get(i).charge);
-                System.out.println("Shipping Status:\t" + orders.get(i).status);
-                System.out.println("");
+                orders.get(i).printDetail();
+                System.out.println("==========================");
             }
         } catch(SQLException e) {
             System.out.println("[ERROR]: Failed to query orders");

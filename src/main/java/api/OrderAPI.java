@@ -10,119 +10,221 @@ public class OrderAPI {
     public static Order selectOrderById(String oid) throws SQLException {
         Order order = null;
 
-        // Database db = new Database();
-        // PreparedStatement pstatement = db.connection().prepareStatement("SELECT Order.oid, Order.data, Order.charge,Order.status " +
-        //         " FROM Order " +
-        //         " WHERE Order.oid = ? "
-        //         );
-        // pstatement.setString(1, oid);
-        // ResultSet rs = null;
-        // rs = pstatement.executeQuery();
-        // if (rs.next()) {
-        //     order = new Order();
+        Database db = new Database();
+        PreparedStatement stmt = db.connection().prepareStatement(
+            "SELECT O.oid, O.cid, O.order_date, O.ship_status,"
+            + "     C.quantity AS total_qty, C.charge, OI.isbn, OI.quantity FROM orders O"
+            + " JOIN ("
+            + "     SELECT O.oid, SUM(O.quantity) AS quantity, SUM(O.quantity * B.unit_price) AS charge from ordering O"
+            + "         JOIN book B ON O.isbn=B.isbn"
+            + "     GROUP BY O.oid"
+            + " ) C ON C.oid=O.oid"
+            + " JOIN ordering OI ON OI.oid=O.oid"
+            + " WHERE O.oid=?"
+        );
+        stmt.setString(1, oid);
 
-        //    order.oid = rs.getString("oid");
-        //    order.data = rs.getString("data");
-        //    order.charge = rs.getInt("charge");
-        //    order.status = rs.getString("status");
-        // }
-        // db.close();
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            if(order == null) {
+                order = new Order();
+                order.oid = rs.getString("oid");
+                order.cid = rs.getString("cid");
+                order.date = rs.getString("order_date");
+                order.quantity = rs.getInt("total_qty");
+                order.charge = rs.getInt("charge");
+                order.status = rs.getString("ship_status").charAt(0);
+                order.orders = new HashMap<String, Integer>();
+            }
+            order.orders.put(rs.getString("isbn"), rs.getInt("quantity"));
+        }
+        db.close();
+
         return order;
     }
 
     public static List<Order> selectOrdersByMonth(String month) throws SQLException {
         // Reference: Documentation 5.3 - 2
 
-        List<Order> orders = new ArrayList<Order>();
-        // Database db = new Database();
-        // PreparedStatement pstatement = db.connection().prepareStatement("SELECT Order.oid, Order.data, Order.charge,Order.status " +
-        //         " FROM Order " +
-        //         " WHERE month(order.date) = ? "
-        // );
-        // pstatement.setString(1, month);
-        // ResultSet rs = null;
-        // rs = pstatement.executeQuery();
+        Order order;
+        Map<String, Order> orders = new HashMap<String, Order>();
 
-        // while (rs.next()) {
-        //     Order order = new Order();
+        Database db = new Database();
+        PreparedStatement stmt = db.connection().prepareStatement(
+            "SELECT O.oid, O.cid, O.order_date, O.ship_status,"
+            + "     C.quantity AS total_qty, C.charge, OI.isbn, OI.quantity FROM orders O"
+            + " JOIN ("
+            + "     SELECT O.oid, SUM(O.quantity) AS quantity, SUM(O.quantity * B.unit_price) AS charge from ordering O"
+            + "         JOIN book B ON O.isbn=B.isbn"
+            + "     GROUP BY O.oid"
+            + " ) C ON C.oid=O.oid"
+            + " JOIN ordering OI ON OI.oid=O.oid"
+            + " WHERE DATE_FORMAT(O.order_date,'%Y-%m\") = ?"
+        );
+        stmt.setString(1, month);
 
-        //     order.oid = rs.getString("oid");
-        //     order.data = rs.getString("data");
-        //     order.charge = rs.getInt("charge");
-        //     order.status = rs.getString("status");
-        //     orders.add(order);
-        // }
-        // db.close();
-        return orders;
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            String oid = rs.getString("oid");
+            if (orders.get(oid) == null) {
+                order = new Order();
+                order.oid = oid;
+                order.cid = rs.getString("cid");
+                order.date = rs.getString("order_date");
+                order.quantity = rs.getInt("quantity");
+                order.charge = rs.getInt("charge");
+                order.status = rs.getString("ship_status").charAt(0);
+                order.orders = new HashMap<String, Integer>();
+                orders.put(oid, order);
+            }
+            orders.get(oid).orders.put(rs.getString("isbn"), rs.getInt("quantity"));
+        }
+        db.close();
+
+        return new ArrayList<Order>(orders.values());
     }
 
     public static List<Order> selectOrdersByCidAndYear(String cid, int year) throws SQLException {
         // Reference: Documentation 5.2 - 4
 
-        List<Order> orders = new ArrayList<Order>();
+        Order order;
+        Map<String, Order> orders = new HashMap<String, Order>();
 
-        // Database db = new Database();
-        // PreparedStatement pstatement = db.connection().prepareStatement("SELECT Order.oid, Order.data, Order.charge,Order.status " +
-        //         " FROM Order,Ordering " +
-        //         " WHERE year(order.data) = ? AND cid=? "
-        // );
-        // pstatement.setString(1, year);
-        // pstatement.setString(2, cid);
-        // ResultSet rs = null;
-        // rs = pstatement.executeQuery();
+        Database db = new Database();
+        PreparedStatement stmt = db.connection().prepareStatement(
+            "SELECT O.oid, O.cid, O.order_date, O.ship_status,"
+            + "     C.quantity AS total_qty, C.charge, OI.isbn, OI.quantity FROM orders O"
+            + " JOIN ("
+            + "     SELECT O.oid, SUM(O.quantity) AS quantity, SUM(O.quantity * B.unit_price) AS charge from ordering O"
+            + "         JOIN book B ON O.isbn=B.isbn"
+            + "     GROUP BY O.oid"
+            + " ) C ON C.oid=O.oid"
+            + " JOIN ordering OI ON OI.oid=O.oid"
+            + " WHERE cid = ? AND YEAR(O.order_date) = ?"
+        );
+        stmt.setString(1, cid);
+        stmt.setInt(2, year);
 
-        // while (rs.next()) {
-        //     Order order = new Order();
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            String oid = rs.getString("oid");
+            if (orders.get(oid) == null) {
+                order = new Order();
+                order.oid = oid;
+                order.cid = rs.getString("cid");
+                order.date = rs.getString("order_date");
+                order.quantity = rs.getInt("quantity");
+                order.charge = rs.getInt("charge");
+                order.status = rs.getString("ship_status").charAt(0);
+                order.orders = new HashMap<String, Integer>();
+                orders.put(oid, order);
+            }
+            orders.get(oid).orders.put(rs.getString("isbn"), rs.getInt("quantity"));
+        }
+        db.close();
 
-        //     order.oid = rs.getString("oid");
-        //     order.data = rs.getString("data");
-        //     order.charge = rs.getInt("charge");
-        //     order.status = rs.getString("status");
-        //     orders.add(order);
-        // }
-        // db.close();
-        return orders;
+        return new ArrayList<Order>(orders.values());
     }
 
     public static void insertOrder(String cid, Map<String, Integer> orders) throws SQLException {
         // Reference: Documentation 5.2 - 2
 
-        // Database db = new Database();
-        // PreparedStatement pstatement = db.connection().prepareStatement("insert into Ordering(cid,isbn,quantity) values(?,?,?)");
-        // String isbn="";
-        // Integer qty=0;
-        // for(String key:orders.keySet()){
-        //     qty = orders.get(key);
-        //     isbn=key;
-        // }
-        // pstatement.setString(1, cid);
-        // pstatement.setString(2, isbn);
-        // pstatement.setInt(3, qty);
-        // pstatement.executeUpdate();
-        // db.close();
+        int total_qty = 0;
+        for (Map.Entry<String,Integer> entry : orders.entrySet())
+            total_qty += entry.getValue();
+        if (total_qty == 0) {
+            System.out.println("[ERROR]: Order must include at least one book order");
+            return;
+        }
+
+        Database db = new Database();
+
+        int newOid = -1;
+        Statement stmt1 = db.connection().createStatement();
+        ResultSet rs = stmt1.executeQuery("SELECT MAX(oid) AS latest FROM orders");
+        if (rs.next()) {
+            newOid = rs.getInt("latest") + 1;
+        }
+
+        try {
+            PreparedStatement stmt2 = db.connection().prepareStatement(
+                "INSERT INTO orders (oid, cid, order_date, ship_status)"
+                + " VALUES (LPAD(?,8,'0'), ?, ?, 'N')"
+            );
+            stmt2.setInt(1, newOid);
+            stmt2.setString(2, cid);
+            stmt2.setString(3, SystemTimeAPI.get());
+            stmt2.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
+        }
+
+        PreparedStatement stmt3 = db.connection().prepareStatement(
+            "INSERT INTO ordering (oid, isbn, quantity)"
+            + " VALUES (LPAD(?,8,'0'), ?, ?)"
+        );
+        PreparedStatement stmt4 = db.connection().prepareStatement(
+            "UPDATE book SET no_copies = no_copies - ? WHERE isbn = ?"
+        );
+        for (Map.Entry<String,Integer> entry : orders.entrySet()) {
+            stmt3.setInt(1, newOid);
+            stmt3.setString(2, entry.getKey());
+            stmt3.setInt(3, entry.getValue());
+            stmt3.executeUpdate();
+
+            stmt4.setInt(1, entry.getValue());
+            stmt4.setString(2, entry.getKey());
+            stmt4.executeUpdate();
+        }
+
+        db.close();
     }
 
     public static void updateOrderStatus(String oid, char status) throws SQLException {
         // Reference: Documentation 5.3 - 1
 
-        // Database db = new Database();
-        // PreparedStatement pstatement = db.connection().prepareStatement("update Order set status=? where oid=?");
-        // pstatement.setString(1, status);
-        // pstatement.setString(2, oid);
-        // pstatement.executeUpdate();
-        // db.close();
+        Database db = new Database();
+        PreparedStatement stmt = db.connection().prepareStatement(
+            "UPDATE order SET status = ? WHERE oid = ?"
+        );
+        stmt.setString(1, ""+status);
+        stmt.setString(2, oid);
+
+        stmt.executeUpdate();
+        db.close();
     }
 
-    public static void updateOrderQty(String oid, String isbn, int qty) throws SQLException {
+    public static void updateOrderQty(String oid, String isbn, String action, int qty) throws SQLException {
         // Reference: Documentation 5.2 - 3
         
-        // Database db = new Database();
-        // PreparedStatement pstatement = db.connection().prepareStatement("update Ordering set isbn=?,quantity=? where oid=?");
-        // pstatement.setString(1, isbn);
-        // pstatement.setInt(2, qty);
-        // pstatement.setString(3, oid);
-        // pstatement.executeUpdate();
-        // db.close();
+        Database db = new Database();
+        PreparedStatement stmt1, stmt2;
+
+        if(action.equals("add")) {
+            stmt1 = db.connection().prepareStatement(
+                "UPDATE ordering SET quantity = quantity + ? WHERE oid = ? AND isbn = ?"
+            );
+            stmt2 = db.connection().prepareStatement(
+                "UPDATE book SET no_copies = no_copies - ? WHERE isbn = ?"
+            );
+        } else {
+            stmt1 = db.connection().prepareStatement(
+                "UPDATE ordering SET quantity = quantity - ? WHERE oid = ? AND isbn = ?"
+            );
+            stmt2 = db.connection().prepareStatement(
+                "UPDATE book SET no_copies = no_copies + ? WHERE isbn = ?"
+            );
+        }
+        stmt1.setInt(1, qty);
+        stmt1.setString(2, oid);
+        stmt1.setString(3, isbn);
+        stmt1.executeUpdate();
+
+        stmt2.setInt(1, qty);
+        stmt2.setString(2, isbn);
+        stmt2.executeUpdate();
+
+        db.close();
     }
 
     public static String selectLatestOrderTime() throws SQLException {

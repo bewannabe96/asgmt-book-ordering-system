@@ -14,8 +14,8 @@ public class BookAPI {
 
         Database db = new Database();
         PreparedStatement pstatement = db.connection().prepareStatement("SELECT B.isbn, B.title, B.unit_price, B.no_copies, GROUP_CONCAT(A.name) " + 
-        " FROM Book B " +
-        " JOIN Author A ON B.isbn = A.isbn " +
+        " FROM book B " +
+        " JOIN author A ON B.isbn = A.isbn " +
         " WHERE B.isbn = ? " +
         " GROUP BY B.isbn;");
         pstatement.setString(1, isbn);    
@@ -49,10 +49,10 @@ public class BookAPI {
         Database db = new Database();
         PreparedStatement pstatement = db.connection().prepareStatement("SELECT Temp.isbn, Temp.title, Temp.unit_price, Temp.no_copies, GROUP_CONCAT(A.name) " + 
         " FROM (SELECT B.isbn, B.title, B.unit_price, B.no_copies " + 
-        " FROM Book B " + 
+        " FROM book B " + 
         " WHERE B.title LIKE ? " + 
         " ) AS Temp " + 
-        " JOIN Author A ON Temp.isbn = A.isbn " + 
+        " JOIN author A ON Temp.isbn = A.isbn " + 
         " WHERE Temp.isbn = A.isbn " + 
         " GROUP BY Temp.isbn " +
         " ORDER BY Temp.title;");    
@@ -88,7 +88,7 @@ public class BookAPI {
         PreparedStatement pstatement = db.connection().prepareStatement("SELECT Temp.isbn, Temp.title, Temp.unit_price, Temp.no_copies, Temp.name " +
         " FROM ( " +
         " SELECT * " +
-        " FROM Book B natural join Author A " +
+        " FROM book B natural join author A " +
         " WHERE B.isbn = A.isbn AND A.name LIKE ?) AS Temp;");    
         pstatement.setString(1, author);
         ResultSet rs = null;
@@ -119,7 +119,7 @@ public class BookAPI {
         PreparedStatement pstatement = db.connection().prepareStatement("SELECT Temp.isbn, Temp.title, Temp.total " +
         " From ( " +
         " SELECT *, SUM(O.quantity) as total " +
-        " FROM Ordering O natural join Book " +
+        " FROM ordering O natural join book " +
         " GROUP BY O.isbn ) AS Temp " +
         " ORDER BY Temp.total DESC;");
         

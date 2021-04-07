@@ -58,24 +58,17 @@ public class BookstoreInterface {
                 return;
             }
         } catch(SQLException e) {
+            e.printStackTrace();
             System.out.println("[ERROR]: Failed load order detail");
             return;
         }
         
-        // count total quantity in order
-        int totalQty = 0;
-        for (Entry<String, Integer> entry : order.orders.entrySet())
-            totalQty += entry.getValue();
-
         // print order summary
+        System.out.println("==========================");
         System.out.println("Order Summary");
-        System.out.println("Order ID:\t" + order.oid);
-        System.out.println("Customer ID:\t" + order.cid);
-        System.out.println("Date:\t" + order.date);
-        System.out.println("Charge:\t" + order.charge);
-        System.out.println("Total Books:\t" + totalQty);
-        System.out.println("Shipping Status:\t" + order.status);
-        System.out.println("");
+        System.out.println("==========================");
+        order.printDetail();
+        System.out.println("==========================");
 
         if (order.status=='Y') {
             System.out.println("[INFO]: The order is already shipped");
@@ -117,11 +110,7 @@ public class BookstoreInterface {
 
             for(int i = 0; i < orders.size(); i++) {
                 System.out.println("Record " + (i+1));
-                System.out.println("Order ID:\t" + orders.get(i).oid);
-                System.out.println("Customer ID:\t" + orders.get(i).cid);
-                System.out.println("Date:\t" + orders.get(i).date);
-                System.out.println("Charge:\t" + orders.get(i).charge);
-                System.out.println("");
+                orders.get(i).printDetail();
             }
 
             System.out.println("Total Sales: " + totalSales);
