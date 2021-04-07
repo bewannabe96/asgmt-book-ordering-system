@@ -10,21 +10,29 @@ import java.io.File;
 import java.util.Scanner;
 
 public class SystemTimeAPI {
-    private static String st = "";
+    private static String st = null;
 
     public static void initialize() throws Exception {
         try {
             SystemTimeAPI.st = OrderAPI.selectLatestOrderTime();
         } catch (SQLException e) {
-            throw new Exception("Cannot initialize system time");
+            throw new Exception("Could not initialize system time");
         }
     }
 
-    public static String get() {
+    public static String get() throws Exception {
+        if (SystemTimeAPI.st == null)
+            throw new Exception("System time has not been initialized");
+
         return SystemTimeAPI.st;
     }
 
     public static void set(String time) throws Exception {
+        if (SystemTimeAPI.st == null) {
+            SystemTimeAPI.st = time;
+            return;
+        }
+
         try {
             String latestDate = OrderAPI.selectLatestOrderTime();
             System.out.println("Latest order date: " + latestDate);

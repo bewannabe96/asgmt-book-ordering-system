@@ -2,14 +2,12 @@ package api;
 
 import java.sql.*;
 import java.io.*;
+import java.util.Scanner;
 import java.util.function.BiConsumer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import util.*;
 import model.*;
-
-import java.io.File;
-import java.util.Scanner;
 
 public class SchemaAPI {
     public static void createTables() throws SQLException {
@@ -45,7 +43,7 @@ public class SchemaAPI {
             "CREATE TABLE IF NOT EXISTS orders ("
             + " oid VARCHAR(8),"
             + " cid VARCHAR(10),"
-            + " order_date DATETIME,"
+            + " order_date DATE,"
             + " ship_status CHAR(1),"
             + " PRIMARY KEY(oid),"
             + " FOREIGN KEY(cid) REFERENCES customer (cid)"
@@ -190,6 +188,13 @@ public class SchemaAPI {
                 } catch(SQLException e) {}
             }
         );
+
+        try {
+            SystemTimeAPI.initialize();
+            System.out.println("[INFO]: System time has been initialized: " + SystemTimeAPI.get());
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
+        }
     }
 
     public static void loadDataa(String path) throws Exception, SQLException, FileNotFoundException {

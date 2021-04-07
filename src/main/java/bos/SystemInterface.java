@@ -99,6 +99,10 @@ public class SystemInterface {
     }
 
     private static void performShowSystemDate() {
-        System.out.println("System Date: " + SystemTimeAPI.get());
+        try {
+            System.out.println("System Date: " + SystemTimeAPI.get());
+        } catch (Exception e) {
+            System.out.println("[ERROR]: " + e.getMessage());
+        }
     }
 }

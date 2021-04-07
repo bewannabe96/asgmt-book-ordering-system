@@ -8,8 +8,7 @@ public class BookOrderingSystem {
         try {
             SystemTimeAPI.initialize();
         } catch (Exception e) {
-            System.out.println("[SYSTEM ERROR]: " + e.getMessage());
-            return;
+            System.out.println("[ERROR]: " + e.getMessage());
         }
 
         boolean running = true;
